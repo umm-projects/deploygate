@@ -11,7 +11,7 @@ namespace UnityModule.Settings {
         // ReSharper disable once PartialTypeWithSinglePart
         public partial class EnvironmentSetting_Path {
 
-            private const string DEFAULT_DEPLOY_GATE_COMMAND_PATH = "~/.rbenv/shims/dg";
+            private const string DEFAULT_DEPLOY_GATE_COMMAND_PATH = "";
 
             /// <summary>
             /// dg コマンドのパスの実体
