@@ -15,8 +15,6 @@ namespace ContinuousIntegration {
         /// </summary>
         /// <param name="archivePath">配信対象のアーカイブファイルのパス</param>
         public static void Deploy(string archivePath) {
-            Debug.Log(ResolveCommandPath());
-            Debug.Log(archivePath);
             System.Diagnostics.Process process = new System.Diagnostics.Process {
                 StartInfo = {
                     FileName = ResolveCommandPath(),
