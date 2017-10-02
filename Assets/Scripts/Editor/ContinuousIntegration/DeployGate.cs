@@ -14,11 +14,12 @@ namespace ContinuousIntegration {
         /// DeployGate に配信します
         /// </summary>
         /// <param name="archivePath">配信対象のアーカイブファイルのパス</param>
-        public static void Deploy(string archivePath) {
+        /// <param name="message">アップロードするファイルの説明</param>
+        public static void Deploy(string archivePath, string message = null) {
             System.Diagnostics.Process process = new System.Diagnostics.Process {
                 StartInfo = {
                     FileName = ResolveCommandPath(),
-                    Arguments = string.Format("deploy \"{0}\"", archivePath),
+                    Arguments = GenerateArguments(archivePath, message),
                     CreateNoWindow = true
                 }
             };
@@ -40,6 +41,20 @@ namespace ContinuousIntegration {
                 throw new ArgumentException("DeployGate コマンド (dg) のパスが設定されていません。");
             }
             return Path.GetFullPath(commandPath.Replace("~", Environment.GetFolderPath(Environment.SpecialFolder.Personal)));
+        }
+
+        /// <summary>
+        /// dg コマンドへ渡す引数を生成する
+        /// </summary>
+        /// <param name="archivePath">配信対象のアーカイブファイルのパス</param>
+        /// <param name="message">アップロードするファイルの説明</param>
+        /// <returns>dg コマンドへ渡す引数</returns>
+        private static string GenerateArguments(string archivePath, string message) {
+            string arguments = string.Format("deploy \"{0}\"", archivePath);
+            if (!string.IsNullOrEmpty(message)) {
+                arguments += string.Format(" -m \"{0}\"", message);
+            }
+            return arguments;
         }
 
     }
