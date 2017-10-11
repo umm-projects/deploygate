@@ -122,7 +122,7 @@ namespace ContinuousIntegration {
             /// </summary>
             /// <returns>メッセージ</returns>
             private static string GenerateEnvironmentMessage() {
-                return string.Format("Environment: {0}\n", Debug.isDebugBuild ? "development" : "production");
+                return string.Format("Environment: {0}\n", EditorUserBuildSettings.development ? "development" : "production");
             }
 
             /// <summary>
