@@ -16,33 +16,27 @@ namespace ContinuousIntegration {
         public class PostprocessBuild : IPostprocessBuild {
 
             /// <summary>
-            /// ビルドパラメータ: ユーザ
+            /// 環境変数キー: ユーザ
             /// </summary>
-            private const string BUILD_PARAMETER_USER = "BUILD_USER";
+            private const string ENVIRONMENT_KEY_BUILD_USER = "BUILD_USER";
 
             /// <summary>
-            /// ビルドパラメータ: ブランチ
+            /// 環境変数キー: ブランチ
             /// </summary>
-            private const string BUILD_PARAMETER_BRANCH = "BUILD_BRANCH";
+            private const string ENVIRONMENT_KEY_BUILD_BRANCH = "BUILD_BRANCH";
 
             /// <summary>
-            /// ビルドパラメータ: 環境
+            /// 環境変数キー: エディタバージョン
             /// </summary>
-            private const string BUILD_PARAMETER_ENVIRONMENT = "BUILD_ENVIRONMENT";
-
-            /// <summary>
-            /// ビルドパラメータ: エディタバージョン
-            /// </summary>
-            private const string BUILD_PARAMETER_EDITOR_VERSION = "BUILD_EDITOR_VERSION";
+            private const string ENVIRONMENT_KEY_BUILD_EDITOR_VERSION = "BUILD_EDITOR_VERSION";
 
             /// <summary>
             /// メッセージ接頭辞
             /// </summary>
             private static readonly Dictionary<string, string> MESSAGE_PREFIXES = new Dictionary<string, string>() {
-                { BUILD_PARAMETER_USER,           "User" },
-                { BUILD_PARAMETER_BRANCH,         "Branch" },
-                { BUILD_PARAMETER_ENVIRONMENT,    "Environment" },
-                { BUILD_PARAMETER_EDITOR_VERSION, "Unity" },
+                { ENVIRONMENT_KEY_BUILD_USER,           "User" },
+                { ENVIRONMENT_KEY_BUILD_BRANCH,         "Branch" },
+                { ENVIRONMENT_KEY_BUILD_EDITOR_VERSION, "Unity" },
             };
 
             public int callbackOrder {
@@ -52,7 +46,7 @@ namespace ContinuousIntegration {
             }
 
             public void OnPostprocessBuild(BuildTarget target, string path) {
-                Deploy(ResolveArchivePath(target, path), GenerateMessage());
+                Deploy(ResolveArchivePath(target, path), GenerateMessage(target));
             }
 
             /// <summary>
@@ -81,14 +75,17 @@ namespace ContinuousIntegration {
             /// <summary>
             /// メッセージを生成する
             /// </summary>
+            /// <param name="target">出力先ターゲットプラットフォーム</param>
             /// <returns>メッセージ</returns>
-            private static string GenerateMessage() {
+            private static string GenerateMessage(BuildTarget target) {
                 string message = string.Empty;
-                message += GenerateBuildMessage(BUILD_PARAMETER_USER);
-                message += GenerateBuildMessage(BUILD_PARAMETER_BRANCH);
+                message += GenerateBuildMessage(ENVIRONMENT_KEY_BUILD_USER);
+                message += GeneratePlatformMessage(target);
+                message += GenerateAppVersionMessage();
+                message += GenerateBuildMessage(ENVIRONMENT_KEY_BUILD_BRANCH);
                 message += GenerateCommitMessage();
-                message += GenerateBuildMessage(BUILD_PARAMETER_ENVIRONMENT);
-                message += GenerateBuildMessage(BUILD_PARAMETER_EDITOR_VERSION);
+                message += GenerateEnvironmentMessage();
+                message += GenerateBuildMessage(ENVIRONMENT_KEY_BUILD_EDITOR_VERSION);
                 return message;
             }
 
@@ -102,6 +99,30 @@ namespace ContinuousIntegration {
                     return string.Empty;
                 }
                 return string.Format("{0}: {1}\n", MESSAGE_PREFIXES[buildParameter], value);
+            }
+
+            /// <summary>
+            /// プラットフォームのメッセージを生成して返却する
+            /// </summary>
+            /// <returns>メッセージ</returns>
+            private static string GeneratePlatformMessage(BuildTarget target) {
+                return string.Format("Platform: {0}\n", target == BuildTarget.iOS ? "iOS" : "Android");
+            }
+
+            /// <summary>
+            /// アプリバージョンのメッセージを生成して返却する
+            /// </summary>
+            /// <returns>メッセージ</returns>
+            private static string GenerateAppVersionMessage() {
+                return string.Format("Version: {0}\n", Application.version);
+            }
+
+            /// <summary>
+            /// 環境のメッセージを生成して返却する
+            /// </summary>
+            /// <returns>メッセージ</returns>
+            private static string GenerateEnvironmentMessage() {
+                return string.Format("Environment: {0}\n", EditorUserBuildSettings.development ? "development" : "production");
             }
 
             /// <summary>
