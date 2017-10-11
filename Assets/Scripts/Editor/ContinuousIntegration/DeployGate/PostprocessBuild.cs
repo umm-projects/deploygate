@@ -16,27 +16,27 @@ namespace ContinuousIntegration {
         public class PostprocessBuild : IPostprocessBuild {
 
             /// <summary>
-            /// ビルドパラメータ: ユーザ
+            /// 環境変数キー: ユーザ
             /// </summary>
-            private const string BUILD_PARAMETER_USER = "BUILD_USER";
+            private const string ENVIRONMENT_KEY_BUILD_USER = "BUILD_USER";
 
             /// <summary>
-            /// ビルドパラメータ: ブランチ
+            /// 環境変数キー: ブランチ
             /// </summary>
-            private const string BUILD_PARAMETER_BRANCH = "BUILD_BRANCH";
+            private const string ENVIRONMENT_KEY_BUILD_BRANCH = "BUILD_BRANCH";
 
             /// <summary>
-            /// ビルドパラメータ: エディタバージョン
+            /// 環境変数キー: エディタバージョン
             /// </summary>
-            private const string BUILD_PARAMETER_EDITOR_VERSION = "BUILD_EDITOR_VERSION";
+            private const string ENVIRONMENT_KEY_BUILD_EDITOR_VERSION = "BUILD_EDITOR_VERSION";
 
             /// <summary>
             /// メッセージ接頭辞
             /// </summary>
             private static readonly Dictionary<string, string> MESSAGE_PREFIXES = new Dictionary<string, string>() {
-                { BUILD_PARAMETER_USER,           "User" },
-                { BUILD_PARAMETER_BRANCH,         "Branch" },
-                { BUILD_PARAMETER_EDITOR_VERSION, "Unity" },
+                { ENVIRONMENT_KEY_BUILD_USER,           "User" },
+                { ENVIRONMENT_KEY_BUILD_BRANCH,         "Branch" },
+                { ENVIRONMENT_KEY_BUILD_EDITOR_VERSION, "Unity" },
             };
 
             public int callbackOrder {
@@ -79,13 +79,13 @@ namespace ContinuousIntegration {
             /// <returns>メッセージ</returns>
             private static string GenerateMessage(BuildTarget target) {
                 string message = string.Empty;
-                message += GenerateBuildMessage(BUILD_PARAMETER_USER);
+                message += GenerateBuildMessage(ENVIRONMENT_KEY_BUILD_USER);
                 message += GeneratePlatformMessage(target);
                 message += GenerateAppVersionMessage();
-                message += GenerateBuildMessage(BUILD_PARAMETER_BRANCH);
+                message += GenerateBuildMessage(ENVIRONMENT_KEY_BUILD_BRANCH);
                 message += GenerateCommitMessage();
                 message += GenerateEnvironmentMessage();
-                message += GenerateBuildMessage(BUILD_PARAMETER_EDITOR_VERSION);
+                message += GenerateBuildMessage(ENVIRONMENT_KEY_BUILD_EDITOR_VERSION);
                 return message;
             }
 
