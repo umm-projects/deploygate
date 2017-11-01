@@ -26,6 +26,11 @@ namespace ContinuousIntegration {
             private const string ENVIRONMENT_KEY_BUILD_BRANCH = "BUILD_BRANCH";
 
             /// <summary>
+            /// 環境変数キー: 環境
+            /// </summary>
+            private const string ENVIRONMENT_KEY_BUILD_DEVELOPMENT = "BUILD_DEVELOPMENT";
+
+            /// <summary>
             /// 環境変数キー: エディタバージョン
             /// </summary>
             private const string ENVIRONMENT_KEY_BUILD_EDITOR_VERSION = "BUILD_EDITOR_VERSION";
@@ -36,6 +41,7 @@ namespace ContinuousIntegration {
             private static readonly Dictionary<string, string> MESSAGE_PREFIXES = new Dictionary<string, string>() {
                 { ENVIRONMENT_KEY_BUILD_USER,           "User" },
                 { ENVIRONMENT_KEY_BUILD_BRANCH,         "Branch" },
+                { ENVIRONMENT_KEY_BUILD_DEVELOPMENT,    "Environment" },
                 { ENVIRONMENT_KEY_BUILD_EDITOR_VERSION, "Unity" },
             };
 
@@ -84,7 +90,7 @@ namespace ContinuousIntegration {
                 message += GenerateAppVersionMessage();
                 message += GenerateBuildMessage(ENVIRONMENT_KEY_BUILD_BRANCH);
                 message += GenerateCommitMessage();
-                message += GenerateEnvironmentMessage();
+                message += GenerateEnvironmentMessage(ENVIRONMENT_KEY_BUILD_DEVELOPMENT);
                 message += GenerateBuildMessage(ENVIRONMENT_KEY_BUILD_EDITOR_VERSION);
                 return message;
             }
@@ -121,8 +127,12 @@ namespace ContinuousIntegration {
             /// 環境のメッセージを生成して返却する
             /// </summary>
             /// <returns>メッセージ</returns>
-            private static string GenerateEnvironmentMessage() {
-                return string.Format("Environment: {0}\n", EditorUserBuildSettings.development ? "development" : "production");
+            private static string GenerateEnvironmentMessage(string buildParameter) {
+                string value = Environment.GetEnvironmentVariable(buildParameter);
+                if (string.IsNullOrEmpty(value)) {
+                    return string.Empty;
+                }
+                return string.Format("{0}: {1}\n", MESSAGE_PREFIXES[buildParameter], value == "true" ? "development" : "production");
             }
 
             /// <summary>
