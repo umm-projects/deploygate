@@ -66,7 +66,7 @@ namespace ContinuousIntegration {
                 string archivePath = string.Empty;
                 switch (target) {
                     case BuildTarget.iOS:
-                        archivePath = string.Format("{0}/build/Unity-iPhone.ipa", path);
+                        archivePath = string.Format("{0}/export-ad-hoc/Unity-iPhone.ipa", path);
                         break;
                     case BuildTarget.Android:
                         archivePath = path;
