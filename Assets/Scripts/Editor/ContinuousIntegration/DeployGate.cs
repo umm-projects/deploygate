@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using UnityEngine;
 using UnityModule.Settings;
 
 namespace ContinuousIntegration {
@@ -11,12 +9,17 @@ namespace ContinuousIntegration {
     public partial class DeployGate {
 
         /// <summary>
+        /// 環境変数キー: ユーザ
+        /// </summary>
+        private const string ENVIRONMENT_KEY_COMMAND_DEPLOY_GATE = "COMMAND_DEPLOY_GATE";
+
+        /// <summary>
         /// DeployGate に配信します
         /// </summary>
         /// <param name="archivePath">配信対象のアーカイブファイルのパス</param>
         /// <param name="message">アップロードするファイルの説明</param>
         public static void Deploy(string archivePath, string message = null) {
-            System.Diagnostics.Process process = new System.Diagnostics.Process {
+            Process process = new Process {
                 StartInfo = {
                     FileName = ResolveCommandPath(),
                     Arguments = GenerateArguments(archivePath, message),
@@ -37,6 +40,9 @@ namespace ContinuousIntegration {
         /// <exception cref="ArgumentException"></exception>
         private static string ResolveCommandPath() {
             string commandPath = EnvironmentSetting.Instance.Path.CommandDeployGate;
+            if (string.IsNullOrEmpty(commandPath)) {
+                commandPath = Environment.GetEnvironmentVariable(ENVIRONMENT_KEY_COMMAND_DEPLOY_GATE);
+            }
             if (string.IsNullOrEmpty(commandPath)) {
                 throw new ArgumentException("DeployGate コマンド (dg) のパスが設定されていません。");
             }
