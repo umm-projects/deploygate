@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace UnityModule.Settings {
 
@@ -31,6 +28,24 @@ namespace UnityModule.Settings {
                 }
             }
 
+        }
+
+        /// <summary>
+        /// DeployGate に deploy するかどうかの実体
+        /// </summary>
+        [SerializeField]
+        private bool shouldDeployToDeployGate = true;
+
+        /// <summary>
+        /// DeployGate に deploy するかどうか
+        /// </summary>
+        public bool ShouldDeployToDeployGate {
+            get {
+                return this.shouldDeployToDeployGate;
+            }
+            set {
+                this.shouldDeployToDeployGate = value;
+            }
         }
 
     }
