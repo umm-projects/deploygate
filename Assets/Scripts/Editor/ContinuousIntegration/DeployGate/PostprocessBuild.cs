@@ -52,6 +52,9 @@ namespace ContinuousIntegration {
             }
 
             public void OnPostprocessBuild(BuildTarget target, string path) {
+                if (!EnvironmentSetting.Instance.ShouldDeployToDeployGate) {
+                    return;
+                }
                 Deploy(ResolveArchivePath(target, path), GenerateMessage(target));
             }
 
