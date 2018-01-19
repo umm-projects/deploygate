@@ -4,6 +4,7 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEngine;
+using UnityModule.Command.VCS;
 using UnityModule.Settings;
 
 namespace ContinuousIntegration {
@@ -11,7 +12,7 @@ namespace ContinuousIntegration {
     // ReSharper disable once PartialTypeWithSinglePart
     public partial class DeployGate {
 
-        public const int POSTPROCESS_BUILD_CALLBACK_ORDER = 200;
+        private const int POSTPROCESS_BUILD_CALLBACK_ORDER = 200;
 
         public class PostprocessBuild : IPostprocessBuild {
 
@@ -69,6 +70,7 @@ namespace ContinuousIntegration {
                 string archivePath = string.Empty;
                 switch (target) {
                     case BuildTarget.iOS:
+                        // XXX: 出力先は @umm/xcode_archiver に依存するので、書き換えを検討する
                         archivePath = string.Format("{0}/export-ad-hoc/Unity-iPhone.ipa", path);
                         break;
                     case BuildTarget.Android:
@@ -93,7 +95,7 @@ namespace ContinuousIntegration {
                 message += GenerateAppVersionMessage();
                 message += GenerateBuildMessage(ENVIRONMENT_KEY_BUILD_BRANCH);
                 message += GenerateCommitMessage();
-                message += GenerateEnvironmentMessage(ENVIRONMENT_KEY_BUILD_DEVELOPMENT);
+                message += GenerateEnvironmentMessage();
                 message += GenerateBuildMessage(ENVIRONMENT_KEY_BUILD_EDITOR_VERSION);
                 return message;
             }
@@ -130,12 +132,12 @@ namespace ContinuousIntegration {
             /// 環境のメッセージを生成して返却する
             /// </summary>
             /// <returns>メッセージ</returns>
-            private static string GenerateEnvironmentMessage(string buildParameter) {
-                string value = Environment.GetEnvironmentVariable(buildParameter);
+            private static string GenerateEnvironmentMessage() {
+                string value = Environment.GetEnvironmentVariable(ENVIRONMENT_KEY_BUILD_DEVELOPMENT);
                 if (string.IsNullOrEmpty(value)) {
                     return string.Empty;
                 }
-                return string.Format("{0}: {1}\n", MESSAGE_PREFIXES[buildParameter], value == "true" ? "development" : "production");
+                return string.Format("{0}: {1}\n", MESSAGE_PREFIXES[ENVIRONMENT_KEY_BUILD_DEVELOPMENT], value == "true" ? "development" : "production");
             }
 
             /// <summary>
@@ -143,28 +145,7 @@ namespace ContinuousIntegration {
             /// </summary>
             /// <returns>メッセージ</returns>
             private static string GenerateCommitMessage() {
-                return string.Format("Commit: {0}\n", GetCommit());
-            }
-
-            /// <summary>
-            /// コミット番号を取得する
-            /// </summary>
-            /// <returns>メッセージ</returns>
-            private static string GetCommit() {
-                System.Diagnostics.Process process = new System.Diagnostics.Process {
-                    StartInfo = {
-                        FileName = "/usr/local/bin/git",
-                        Arguments = "rev-parse HEAD",
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        CreateNoWindow = true
-                    }
-                };
-                process.Start();
-                process.WaitForExit();
-                string commit = process.StandardOutput.ReadToEnd().TrimEnd();
-                process.Close();
-                return commit;
+                return string.Format("Commit: {0}\n", Git.GetCurrentCommitHash());
             }
 
         }

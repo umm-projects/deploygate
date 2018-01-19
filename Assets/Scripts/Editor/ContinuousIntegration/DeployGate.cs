@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using UnityModule.Settings;
 
 namespace ContinuousIntegration {
@@ -21,7 +19,7 @@ namespace ContinuousIntegration {
         public static void Deploy(string archivePath, string message = null) {
             Process process = new Process {
                 StartInfo = {
-                    FileName = ResolveCommandPath(),
+                    FileName = EnvironmentSetting.Instance.Path.CommandDeployGate,
                     Arguments = GenerateArguments(archivePath, message),
                     CreateNoWindow = true
                 }
@@ -29,24 +27,6 @@ namespace ContinuousIntegration {
             process.Start();
             process.WaitForExit();
             process.Close();
-        }
-
-        /// <summary>
-        /// dg コマンドへのパスを解決
-        /// </summary>
-        /// <remarks>相対パスを絶対パスに変換します</remarks>
-        /// <remarks>チルダをホームディレクトリのパスに変換します</remarks>
-        /// <returns>解決済みのパス</returns>
-        /// <exception cref="ArgumentException"></exception>
-        private static string ResolveCommandPath() {
-            string commandPath = EnvironmentSetting.Instance.Path.CommandDeployGate;
-            if (string.IsNullOrEmpty(commandPath)) {
-                commandPath = Environment.GetEnvironmentVariable(ENVIRONMENT_KEY_COMMAND_DEPLOY_GATE);
-            }
-            if (string.IsNullOrEmpty(commandPath)) {
-                throw new ArgumentException("DeployGate コマンド (dg) のパスが設定されていません。");
-            }
-            return Path.GetFullPath(commandPath.Replace("~", Environment.GetFolderPath(Environment.SpecialFolder.Personal)));
         }
 
         /// <summary>
