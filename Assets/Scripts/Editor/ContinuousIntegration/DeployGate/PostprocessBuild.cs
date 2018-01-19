@@ -143,28 +143,7 @@ namespace ContinuousIntegration {
             /// </summary>
             /// <returns>メッセージ</returns>
             private static string GenerateCommitMessage() {
-                return string.Format("Commit: {0}\n", GetCommit());
-            }
-
-            /// <summary>
-            /// コミット番号を取得する
-            /// </summary>
-            /// <returns>メッセージ</returns>
-            private static string GetCommit() {
-                System.Diagnostics.Process process = new System.Diagnostics.Process {
-                    StartInfo = {
-                        FileName = "/usr/local/bin/git",
-                        Arguments = "rev-parse HEAD",
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        CreateNoWindow = true
-                    }
-                };
-                process.Start();
-                process.WaitForExit();
-                string commit = process.StandardOutput.ReadToEnd().TrimEnd();
-                process.Close();
-                return commit;
+                return string.Format("Commit: {0}\n", Git.GetCurrentCommitHash());
             }
 
         }
