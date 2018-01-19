@@ -21,7 +21,8 @@ namespace ContinuousIntegration {
                 StartInfo = {
                     FileName = EnvironmentSetting.Instance.Path.CommandDeployGate,
                     Arguments = GenerateArguments(archivePath, message),
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
+                    UseShellExecute = true,
                 }
             };
             process.Start();
