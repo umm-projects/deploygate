@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEditor.Build;
+#if UNITY_2018_1_OR_NEWER
+using UnityEditor.Build.Reporting;
+#endif
 using UnityEngine;
 using UnityModule.Command.VCS;
 using UnityModule.Settings;
@@ -14,7 +17,11 @@ namespace ContinuousIntegration {
 
         private const int POSTPROCESS_BUILD_CALLBACK_ORDER = 200;
 
+#if UNITY_2018_1_OR_NEWER
+        public class PostprocessBuild : IPostprocessBuildWithReport {
+#else
         public class PostprocessBuild : IPostprocessBuild {
+#endif
 
             /// <summary>
             /// 環境変数キー: ユーザ
@@ -52,12 +59,22 @@ namespace ContinuousIntegration {
                 }
             }
 
+#if UNITY_2018_1_OR_NEWER
+            public void OnPostprocessBuild(BuildReport report)
+            {
+                if (!EnvironmentSetting.Instance.ShouldDeployToDeployGate) {
+                    return;
+                }
+                Deploy(ResolveArchivePath(report.summary.platform, report.summary.outputPath), GenerateMessage(report.summary.platform));
+            }
+#else
             public void OnPostprocessBuild(BuildTarget target, string path) {
                 if (!EnvironmentSetting.Instance.ShouldDeployToDeployGate) {
                     return;
                 }
                 Deploy(ResolveArchivePath(target, path), GenerateMessage(target));
             }
+#endif
 
             /// <summary>
             /// ビルド済のアーカイブファイルのパスを解決
