@@ -29,7 +29,7 @@
   ],
   "dependencies": {
     "@umm/setting_core": "umm-projects/setting_core#^2.0.0",
-    "@umm/git": "umm-projects/git#^2.0.0",
+    "@umm/git": "umm-projects/git#^3.0.0",
     "@umm/scripts": "umm-projects/scripts#^1.0.0"
   },
   "devDependencies": {}
