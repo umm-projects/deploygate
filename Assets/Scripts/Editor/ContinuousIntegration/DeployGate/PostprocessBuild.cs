@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using JetBrains.Annotations;
 using UnityEditor;
 using UnityEditor.Build;
 #if UNITY_2018_1_OR_NEWER
@@ -10,66 +11,70 @@ using UnityEngine;
 using UnityModule.Command.VCS;
 using UnityModule.Settings;
 
-namespace ContinuousIntegration {
-
+namespace ContinuousIntegration
+{
     // ReSharper disable once PartialTypeWithSinglePart
-    public partial class DeployGate {
-
-        private const int POSTPROCESS_BUILD_CALLBACK_ORDER = 200;
+    [PublicAPI]
+    public partial class DeployGate
+    {
+        private const int PostprocessBuildCallbackOrder = 200;
 
 #if UNITY_2018_1_OR_NEWER
-        public class PostprocessBuild : IPostprocessBuildWithReport {
+        public class PostprocessBuild : IPostprocessBuildWithReport
+        {
 #else
-        public class PostprocessBuild : IPostprocessBuild {
+        public class PostprocessBuild : IPostprocessBuild
+        {
 #endif
 
             /// <summary>
             /// 環境変数キー: ユーザ
             /// </summary>
-            private const string ENVIRONMENT_KEY_BUILD_USER = "BUILD_USER";
+            private const string EnvironmentKeyBuildUser = "BUILD_USER";
 
             /// <summary>
             /// 環境変数キー: ブランチ
             /// </summary>
-            private const string ENVIRONMENT_KEY_BUILD_BRANCH = "BUILD_BRANCH";
+            private const string EnvironmentKeyBuildBranch = "BUILD_BRANCH";
 
             /// <summary>
             /// 環境変数キー: 環境
             /// </summary>
-            private const string ENVIRONMENT_KEY_BUILD_DEVELOPMENT = "BUILD_DEVELOPMENT";
+            private const string EnvironmentKeyBuildDevelopment = "BUILD_DEVELOPMENT";
 
             /// <summary>
             /// 環境変数キー: エディタバージョン
             /// </summary>
-            private const string ENVIRONMENT_KEY_BUILD_EDITOR_VERSION = "BUILD_EDITOR_VERSION";
+            private const string EnvironmentKeyBuildEditorVersion = "BUILD_EDITOR_VERSION";
 
             /// <summary>
             /// メッセージ接頭辞
             /// </summary>
-            private static readonly Dictionary<string, string> MESSAGE_PREFIXES = new Dictionary<string, string>() {
-                { ENVIRONMENT_KEY_BUILD_USER,           "User" },
-                { ENVIRONMENT_KEY_BUILD_BRANCH,         "Branch" },
-                { ENVIRONMENT_KEY_BUILD_DEVELOPMENT,    "Environment" },
-                { ENVIRONMENT_KEY_BUILD_EDITOR_VERSION, "Unity" },
+            private static readonly Dictionary<string, string> MessagePrefixes = new Dictionary<string, string>()
+            {
+                {EnvironmentKeyBuildUser, "User"},
+                {EnvironmentKeyBuildBranch, "Branch"},
+                {EnvironmentKeyBuildDevelopment, "Environment"},
+                {EnvironmentKeyBuildEditorVersion, "Unity"},
             };
 
-            public int callbackOrder {
-                get {
-                    return POSTPROCESS_BUILD_CALLBACK_ORDER;
-                }
-            }
+            public int callbackOrder => PostprocessBuildCallbackOrder;
 
 #if UNITY_2018_1_OR_NEWER
             public void OnPostprocessBuild(BuildReport report)
             {
-                if (!EnvironmentSetting.Instance.ShouldDeployToDeployGate) {
+                if (!DeployGateSetting.GetOrDefault().ShouldDeployToDeployGate)
+                {
                     return;
                 }
+
                 Deploy(ResolveArchivePath(report.summary.platform, report.summary.outputPath), GenerateMessage(report.summary.platform));
             }
 #else
-            public void OnPostprocessBuild(BuildTarget target, string path) {
-                if (!EnvironmentSetting.Instance.ShouldDeployToDeployGate) {
+            public void OnPostprocessBuild(BuildTarget target, string path)
+            {
+                if (!DeployGateSetting.GetOrDefault().ShouldDeployToDeployGate)
+                {
                     return;
                 }
                 Deploy(ResolveArchivePath(target, path), GenerateMessage(target));
@@ -83,20 +88,26 @@ namespace ContinuousIntegration {
             /// <param name="path">出力先パス</param>
             /// <returns>解決済みのパス</returns>
             /// <exception cref="ArgumentException">ファイルが見付からなかった場合に throw</exception>
-            private static string ResolveArchivePath(BuildTarget target, string path) {
-                string archivePath = string.Empty;
-                switch (target) {
+            private static string ResolveArchivePath(BuildTarget target, string path)
+            {
+                var archivePath = string.Empty;
+                // ReSharper disable once SwitchStatementMissingSomeCases
+                switch (target)
+                {
                     case BuildTarget.iOS:
                         // XXX: 出力先は @umm/xcode_archiver に依存するので、書き換えを検討する
-                        archivePath = string.Format("{0}/export-ad-hoc/Unity-iPhone.ipa", path);
+                        archivePath = $"{path}/export-ad-hoc/Unity-iPhone.ipa";
                         break;
                     case BuildTarget.Android:
                         archivePath = path;
                         break;
                 }
-                if (!File.Exists(archivePath)) {
-                    throw new ArgumentException(string.Format("\"{0}\" にビルド済のアーカイブが見付かりませんでした。", archivePath));
+
+                if (!File.Exists(archivePath))
+                {
+                    throw new ArgumentException($"\"{archivePath}\" にビルド済のアーカイブが見付かりませんでした。");
                 }
+
                 return archivePath;
             }
 
@@ -105,15 +116,16 @@ namespace ContinuousIntegration {
             /// </summary>
             /// <param name="target">出力先ターゲットプラットフォーム</param>
             /// <returns>メッセージ</returns>
-            private static string GenerateMessage(BuildTarget target) {
-                string message = string.Empty;
-                message += GenerateBuildMessage(ENVIRONMENT_KEY_BUILD_USER);
+            private static string GenerateMessage(BuildTarget target)
+            {
+                var message = string.Empty;
+                message += GenerateBuildMessage(EnvironmentKeyBuildUser);
                 message += GeneratePlatformMessage(target);
                 message += GenerateAppVersionMessage();
-                message += GenerateBuildMessage(ENVIRONMENT_KEY_BUILD_BRANCH);
+                message += GenerateBuildMessage(EnvironmentKeyBuildBranch);
                 message += GenerateCommitMessage();
                 message += GenerateEnvironmentMessage();
-                message += GenerateBuildMessage(ENVIRONMENT_KEY_BUILD_EDITOR_VERSION);
+                message += GenerateBuildMessage(EnvironmentKeyBuildEditorVersion);
                 return message;
             }
 
@@ -121,52 +133,58 @@ namespace ContinuousIntegration {
             /// 指定されたビルドパラメータに該当するメッセージを生成して返却する
             /// </summary>
             /// <returns>メッセージ</returns>
-            private static string GenerateBuildMessage(string buildParameter) {
-                string value = Environment.GetEnvironmentVariable(buildParameter);
-                if (string.IsNullOrEmpty(value)) {
+            private static string GenerateBuildMessage(string buildParameter)
+            {
+                var value = Environment.GetEnvironmentVariable(buildParameter);
+                if (string.IsNullOrEmpty(value))
+                {
                     return string.Empty;
                 }
-                return string.Format("{0}: {1}\n", MESSAGE_PREFIXES[buildParameter], value);
+
+                return $"{MessagePrefixes[buildParameter]}: {value}\n";
             }
 
             /// <summary>
             /// プラットフォームのメッセージを生成して返却する
             /// </summary>
             /// <returns>メッセージ</returns>
-            private static string GeneratePlatformMessage(BuildTarget target) {
-                return string.Format("Platform: {0}\n", target == BuildTarget.iOS ? "iOS" : "Android");
+            private static string GeneratePlatformMessage(BuildTarget target)
+            {
+                return $"Platform: {(target == BuildTarget.iOS ? "iOS" : "Android")}\n";
             }
 
             /// <summary>
             /// アプリバージョンのメッセージを生成して返却する
             /// </summary>
             /// <returns>メッセージ</returns>
-            private static string GenerateAppVersionMessage() {
-                return string.Format("Version: {0}\n", Application.version);
+            private static string GenerateAppVersionMessage()
+            {
+                return $"Version: {Application.version}\n";
             }
 
             /// <summary>
             /// 環境のメッセージを生成して返却する
             /// </summary>
             /// <returns>メッセージ</returns>
-            private static string GenerateEnvironmentMessage() {
-                string value = Environment.GetEnvironmentVariable(ENVIRONMENT_KEY_BUILD_DEVELOPMENT);
-                if (string.IsNullOrEmpty(value)) {
+            private static string GenerateEnvironmentMessage()
+            {
+                var value = Environment.GetEnvironmentVariable(EnvironmentKeyBuildDevelopment);
+                if (string.IsNullOrEmpty(value))
+                {
                     return string.Empty;
                 }
-                return string.Format("{0}: {1}\n", MESSAGE_PREFIXES[ENVIRONMENT_KEY_BUILD_DEVELOPMENT], value == "true" ? "development" : "production");
+
+                return $"{MessagePrefixes[EnvironmentKeyBuildDevelopment]}: {(value == "true" ? "development" : "production")}\n";
             }
 
             /// <summary>
             /// コミット番号のメッセージを生成して返却する
             /// </summary>
             /// <returns>メッセージ</returns>
-            private static string GenerateCommitMessage() {
-                return string.Format("Commit: {0}\n", Git.GetCurrentCommitHash());
+            private static string GenerateCommitMessage()
+            {
+                return $"Commit: {Git.GetCurrentCommitHash()}\n";
             }
-
         }
-
     }
-
 }
