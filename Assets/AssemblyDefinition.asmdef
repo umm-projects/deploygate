@@ -1,9 +1,6 @@
 {
     "name": "umm@deploygate",
-    "references": [
-        "umm@git",
-        "umm@setting_core"
-    ],
+    "references": [],
     "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],

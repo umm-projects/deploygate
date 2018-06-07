@@ -1,0 +1,14 @@
+{
+    "name": "umm@deploygate-Editor",
+    "references": [
+        "umm@deploygate",
+        "umm@git",
+        "umm@setting_core"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
