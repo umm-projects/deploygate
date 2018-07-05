@@ -1,6 +1,6 @@
 {
   "name": "@umm/deploygate",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Push built archive to DeployGate",
   "homepage": "https://github.com/umm-projects/deploygate",
   "bugs": {
