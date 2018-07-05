@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UnityModule.Settings
 {
-    public class DeployGateSetting : Setting<DeployGateSetting>
+    public class DeployGateSetting : Setting<DeployGateSetting>, IEnvironmentSetting
     {
         /// <summary>
         /// デフォルトの dg コマンドパス
@@ -47,7 +47,7 @@ namespace UnityModule.Settings
         [UnityEditor.MenuItem("Assets/Create/Settings/DeployGate Setting")]
         public static void CreateSettingAsset()
         {
-            CreateAsset(true);
+            CreateAsset();
         }
 #endif
     }
