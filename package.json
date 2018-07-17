@@ -2,9 +2,9 @@
   "name": "@umm/deploygate",
   "version": "2.1.2",
   "description": "Push built archive to DeployGate",
-  "homepage": "https://github.com/umm-projects/deploygate",
+  "homepage": "https://github.com/umm/deploygate",
   "bugs": {
-    "url": "https://github.com/umm-projects/deploygate/issues"
+    "url": "https://github.com/umm/deploygate/issues"
   },
   "scripts": {
     "umm:init": "umm-init",
@@ -22,16 +22,16 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:umm-projects/deploygate"
+    "url": "git@github.com:umm/deploygate"
   },
   "files": [
     "Assets",
     "scripts"
   ],
   "dependencies": {
-    "@umm/git": "umm-projects/git#^3.0.0",
-    "@umm/scripts": "umm-projects/scripts#^1.0.0",
-    "@umm/setting_core": "umm-projects/setting_core#^2.0.0"
+    "@umm/git": "umm/git#^3.0.0",
+    "@umm/scripts": "umm/scripts#^1.0.0",
+    "@umm/setting_core": "umm/setting_core#^2.0.0"
   },
   "devDependencies": {}
 }
