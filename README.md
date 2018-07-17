@@ -9,7 +9,7 @@
 # Install
 
 ```shell
-$ npm install github:umm-projects/deploygate
+$ npm install github:umm/deploygate
 ```
 
 # Usage
