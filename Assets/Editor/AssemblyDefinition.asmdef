@@ -1,8 +1,7 @@
 {
     "name": "umm@deploygate-Editor",
     "references": [
-        "umm@deploygate",
-        "umm@git",
+        "umm@git_cli",
         "umm@setting_core"
     ],
     "optionalUnityReferences": [],
