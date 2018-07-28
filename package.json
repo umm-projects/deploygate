@@ -29,7 +29,7 @@
     "scripts"
   ],
   "dependencies": {
-    "@umm/git": "umm/git#^3.0.0",
+    "@umm/git_cli": "umm/git_cli#^4.0.0",
     "@umm/scripts": "umm/scripts#^1.0.0",
     "@umm/setting_core": "umm/setting_core#^2.0.0"
   },
