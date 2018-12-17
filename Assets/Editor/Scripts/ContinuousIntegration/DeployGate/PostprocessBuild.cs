@@ -105,7 +105,9 @@ namespace ContinuousIntegration
 
                 if (!File.Exists(archivePath))
                 {
-                    throw new ArgumentException($"\"{archivePath}\" にビルド済のアーカイブが見付かりませんでした。");
+                    // NOTE: throw Exceptionだとビルドが止まらないため、ExitCode返却しつつ終了
+                    Debug.LogError($"\"{archivePath}\" にビルド済のアーカイブが見付かりませんでした。");
+                    EditorApplication.Exit(1);
                 }
 
                 return archivePath;
