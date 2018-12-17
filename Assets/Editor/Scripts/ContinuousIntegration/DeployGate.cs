@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using UnityEditor;
 using UnityModule.Settings;
 
 namespace ContinuousIntegration
@@ -31,6 +32,11 @@ namespace ContinuousIntegration
             process.Start();
             process.WaitForExit();
             process.Close();
+
+            if (process.ExitCode != 0)
+            {
+                EditorApplication.Exit(process.ExitCode);
+            }
         }
 
         /// <summary>
