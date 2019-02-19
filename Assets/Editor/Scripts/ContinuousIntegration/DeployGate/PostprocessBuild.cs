@@ -68,7 +68,22 @@ namespace ContinuousIntegration
                     return;
                 }
 
-                Deploy(ResolveArchivePath(report.summary.platform, report.summary.outputPath), GenerateMessage(report.summary.platform));
+                var archivePath = ResolveArchivePath(report.summary.platform, report.summary.outputPath);
+                if (!File.Exists(archivePath))
+                {
+                    Debug.LogError($"\"{archivePath}\" にビルド済のアーカイブが見付かりませんでした。");
+                    if (Application.isBatchMode)
+                    {
+                        // NOTE: throw Exceptionだとビルドが止まらないため、ExitCode返却しつつ終了
+                        EditorApplication.Exit(1);
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+
+                Deploy(archivePath, GenerateMessage(report.summary.platform));
             }
 #else
             public void OnPostprocessBuild(BuildTarget target, string path)
@@ -101,13 +116,6 @@ namespace ContinuousIntegration
                     case BuildTarget.Android:
                         archivePath = path;
                         break;
-                }
-
-                if (!File.Exists(archivePath))
-                {
-                    // NOTE: throw Exceptionだとビルドが止まらないため、ExitCode返却しつつ終了
-                    Debug.LogError($"\"{archivePath}\" にビルド済のアーカイブが見付かりませんでした。");
-                    EditorApplication.Exit(1);
                 }
 
                 return archivePath;

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using UnityEditor;
+using UnityEngine;
 using UnityModule.Settings;
 
 namespace ContinuousIntegration
@@ -34,7 +35,7 @@ namespace ContinuousIntegration
             var exitCode = process.ExitCode; // Close前にExitCode取得しないとエラー
             process.Close();
 
-            if (exitCode != 0)
+            if (exitCode != 0 && Application.isBatchMode)
             {
                 EditorApplication.Exit(exitCode);
             }
