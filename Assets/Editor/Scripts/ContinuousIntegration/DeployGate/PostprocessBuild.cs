@@ -204,7 +204,7 @@ namespace ContinuousIntegration
             /// <returns>メッセージ</returns>
             private static string GenerateCommitMessage()
             {
-                return $"Commit: {Git.GetCurrentCommitHash()}\n";
+                return $"Commit: {Git.GetCurrentCommitHash().TrimEnd()}\n";
             }
         }
     }
