@@ -48,6 +48,11 @@ namespace ContinuousIntegration
             private const string EnvironmentKeyBuildEditorVersion = "BUILD_EDITOR_VERSION";
 
             /// <summary>
+            /// 環境変数: Android App Bundle を有効にするかどうか
+            /// </summary>
+            private const string EnvironmentVariableAndroidAppBundle = "BUILD_ANDROID_APP_BUNDLE";
+
+            /// <summary>
             /// メッセージ接頭辞
             /// </summary>
             private static readonly Dictionary<string, string> MessagePrefixes = new Dictionary<string, string>()
@@ -64,6 +69,12 @@ namespace ContinuousIntegration
             public void OnPostprocessBuild(BuildReport report)
             {
                 if (!DeployGateSetting.GetOrDefault().ShouldDeployToDeployGate)
+                {
+                    return;
+                }
+
+                // NOTE: Android App Bundle は DeployGate 側がサポートしてくれないため、出力の有無を問わず処理を行わない
+                if (report.summary.platform == BuildTarget.Android && Environment.GetEnvironmentVariable(EnvironmentVariableAndroidAppBundle) == "true")
                 {
                     return;
                 }
